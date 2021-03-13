@@ -1,4 +1,4 @@
-# Failure Detector
+# Error Detection
 
 ## Descrição
 
