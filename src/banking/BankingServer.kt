@@ -1,43 +1,40 @@
 // Server class.
 
 // Package.
-package placeholder;
+package banking
 
 // Imports.
-import bftsmart.tom.MessageContext;
-import bftsmart.tom.ServiceReplica;
-import bftsmart.tom.server.defaultservices.DefaultSingleRecoverable;
+import bftsmart.tom.MessageContext
+import bftsmart.tom.server.defaultservices.DefaultSingleRecoverable
+import bftsmart.tom.ServiceReplica
+import java.lang.UnsupportedOperationException
+import kotlin.jvm.JvmStatic
 
-public class PlaceholderServer extends DefaultSingleRecoverable {
-
-    public PlaceholderServer(int id) {
-        new ServiceReplica(id, this, this);
+class BankingServer(id: Int) : DefaultSingleRecoverable() {
+    override fun appExecuteOrdered(bytes: ByteArray, context: MessageContext): ByteArray {
+        val request = String(bytes)
+        println("Requisição recebida: $request")
+        return "Resposta - $request".toByteArray()
     }
 
-    @Override
-    public byte[] appExecuteOrdered(byte[] bytes, MessageContext context) {
-        String request = new String(bytes);
-        System.out.println("Requisição recebida: " + request);
-        return ("Resposta - " + request).getBytes();
+    override fun appExecuteUnordered(bytes: ByteArray, context: MessageContext): ByteArray {
+        throw UnsupportedOperationException("Not supported yet.")
     }
 
-    @Override
-    public byte[] appExecuteUnordered(byte[] bytes, MessageContext context) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    override fun getSnapshot(): ByteArray {
+        return "".toByteArray()
     }
 
-    @Override
-    public byte[] getSnapshot() {
-        return "".getBytes();
+    override fun installSnapshot(bytes: ByteArray) {}
+
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            BankingServer(args[0].toInt())
+        }
     }
 
-    @Override
-    public void installSnapshot(byte[] bytes) {
-
+    init {
+        ServiceReplica(id, this, this)
     }
-
-    public static void main(String[] args) {
-        new PlaceholderServer(Integer.parseInt(args[0]));
-    }
-
 }

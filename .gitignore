@@ -15,5 +15,6 @@
 # Virtual machine crash logs.
 hs_err_pid*
 
-# BFT-Smart output files.
+# Output files.
 config/currentView
+out

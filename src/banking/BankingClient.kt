@@ -1,21 +1,19 @@
 // Client class.
 
 // Package.
-package placeholder;
+package banking
 
 // Imports.
-import bftsmart.tom.ServiceProxy;
+import bftsmart.tom.ServiceProxy
+import kotlin.jvm.JvmStatic
 
-public class PlaceholderClient {
-
-    public static void main(String[] args){
-        ServiceProxy proxy = new ServiceProxy(1001);
-
-        byte[] request = args[0].getBytes();
-        byte[] reply = proxy.invokeOrdered(request);
-        String replyString = new String(reply);
-
-        System.out.println("Resposta recebida: " + replyString);
+object BankingClient {
+    @JvmStatic
+    fun main(args: Array<String>) {
+        val proxy = ServiceProxy(1001)
+        val request = args[0].toByteArray()
+        val reply = proxy.invokeOrdered(request)
+        val replyString = String(reply)
+        println("Resposta recebida: $replyString")
     }
-
 }
