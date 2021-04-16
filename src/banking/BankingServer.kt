@@ -14,7 +14,7 @@ class BankingServer(id: Int) : DefaultSingleRecoverable() {
     override fun appExecuteOrdered(bytes: ByteArray, context: MessageContext): ByteArray {
         val request = String(bytes)
         println("Requisição recebida: $request")
-        return "Resposta - $request".toByteArray()
+        return BankingServerMessage(BankingServerMessageResultCode.SUCCESS).toByteArray()
     }
 
     override fun appExecuteUnordered(bytes: ByteArray, context: MessageContext): ByteArray {
