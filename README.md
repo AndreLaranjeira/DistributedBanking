@@ -1,8 +1,8 @@
-# Error Detection
+# Distributed Banking
 
 ## Descrição
 
-Uma aplicação bancária distribuída feita com a biblioteca [BFT-SMART](https://github.com/bft-smart/library) para implementar e estudar a detecção de falhas em sistemas distribuídos. Trabalho final da disciplina de Tópicos avançados em computadores - Tolerância a falhas em sistemas distribuídos 2020/2 da Universidade de Brasília.
+Uma aplicação bancária para sistemas distribuídos feita com a biblioteca [BFT-SMART](https://github.com/bft-smart/library). Trabalho final da disciplina de Tópicos avançados em computadores - Tolerância a falhas em sistemas distribuídos 2020/2 da Universidade de Brasília.
 
 ## Integrantes
 
