@@ -12,7 +12,7 @@ import kotlin.jvm.JvmStatic
 
 class BankingServer(id: Int) : DefaultSingleRecoverable() {
     override fun appExecuteOrdered(bytes: ByteArray, context: MessageContext): ByteArray {
-        val request = String(bytes)
+        val request = BankingClientMessage(bytes)
         println("Requisição recebida: $request")
         return BankingServerMessage(BankingServerMessageResultCode.SUCCESS).toByteArray()
     }
