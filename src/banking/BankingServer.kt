@@ -10,10 +10,16 @@ import bftsmart.tom.ServiceReplica
 import java.lang.UnsupportedOperationException
 import kotlin.jvm.JvmStatic
 
+import operations.MapOperations
+
 class BankingServer(id: Int) : DefaultSingleRecoverable() {
     override fun appExecuteOrdered(bytes: ByteArray, context: MessageContext): ByteArray {
         val request = BankingClientMessage(bytes)
         println("Requisição recebida: $request")
+
+        // For test only:
+        ServerState.internalState.accounts[0].value = request.operationValue
+
         return BankingServerMessage(BankingServerMessageResultCode.SUCCESS).toByteArray()
     }
 
@@ -22,10 +28,21 @@ class BankingServer(id: Int) : DefaultSingleRecoverable() {
     }
 
     override fun getSnapshot(): ByteArray {
-        return "".toByteArray()
+        println(
+            "[getSnapshot][internalState::accounts[0]::value]: " +
+            ServerState.internalState.accounts[0].value
+        )
+        return ServerState.toByteArray()
     }
 
-    override fun installSnapshot(bytes: ByteArray) {}
+    override fun installSnapshot(bytes: ByteArray) {
+        ServerState.fromByteArray(bytes)
+        println(
+            "[getSnapshot][internalState::accounts[0]::value]: " +
+            ServerState.internalState.accounts[0].value
+        )
+        return
+    }
 
     companion object {
         @JvmStatic
@@ -36,5 +53,6 @@ class BankingServer(id: Int) : DefaultSingleRecoverable() {
 
     init {
         ServiceReplica(id, this, this)
+        ServerState.internalState.serverId = id
     }
 }
