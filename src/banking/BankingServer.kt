@@ -16,6 +16,10 @@ class BankingServer(id: Int) : DefaultSingleRecoverable() {
     override fun appExecuteOrdered(bytes: ByteArray, context: MessageContext): ByteArray {
         val request = BankingClientMessage(bytes)
         println("Requisição recebida: $request")
+
+        // For test only:
+        ServerState.internalState.accounts[0].value = request.operationValue
+
         return BankingServerMessage(BankingServerMessageResultCode.SUCCESS).toByteArray()
     }
 
@@ -24,11 +28,20 @@ class BankingServer(id: Int) : DefaultSingleRecoverable() {
     }
 
     override fun getSnapshot(): ByteArray {
+        println(
+            "[getSnapshot][internalState::accounts[0]::value]: " +
+            ServerState.internalState.accounts[0].value
+        )
         return ServerState.toByteArray()
     }
 
     override fun installSnapshot(bytes: ByteArray) {
-        return ServerState.fromByteArray(bytes)
+        ServerState.fromByteArray(bytes)
+        println(
+            "[getSnapshot][internalState::accounts[0]::value]: " +
+            ServerState.internalState.accounts[0].value
+        )
+        return
     }
 
     companion object {
@@ -40,5 +53,6 @@ class BankingServer(id: Int) : DefaultSingleRecoverable() {
 
     init {
         ServiceReplica(id, this, this)
+        ServerState.internalState.serverId = id
     }
 }
