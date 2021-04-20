@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Banking Client 2" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="banking.BankingClient" />
+    <module name="DistributedBanking" />
+    <option name="PROGRAM_PARAMETERS" value="Testando" />
+    <option name="VM_PARAMETERS" value="-Djava.security.properties=&quot;./config/java.security&quot;; -Dlogback.configurationFile=&quot;./config/logback.xml&quot;" />
+    <method v="2" />
+  </configuration>
+</component>
