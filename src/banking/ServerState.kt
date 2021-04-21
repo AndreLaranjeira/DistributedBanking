@@ -12,6 +12,7 @@ object ServerState {
             Account("3", 4000.10),
         ),
         val bankName: String = "DBB",
+        val bankTransferTariff: Double = 10.37,
         var serverId: Int = -1
     )
 
