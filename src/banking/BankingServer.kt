@@ -44,6 +44,53 @@ class BankingServer(id: Int) : DefaultSingleRecoverable() {
         return
     }
 
+    private fun deposit(accountId: String, amount: Double) {
+        val recipientAccount = ServerState.internalState.accounts.find { account -> account.id == accountId } ?:
+            throw RuntimeException("Account not found!")
+
+        recipientAccount.value += amount
+    }
+
+    private fun pix(originAccountId: String, targetAccountId: String, amount: Double) {
+        if(originAccountId == targetAccountId) throw RuntimeException("Origin and target accounts cannot be the same!")
+
+        val originAccount = ServerState.internalState.accounts.find { account -> account.id == originAccountId } ?:
+            throw RuntimeException("Origin account not found!")
+
+        val targetAccount = ServerState.internalState.accounts.find { account -> account.id == targetAccountId } ?:
+            throw RuntimeException("Target account not found!")
+
+        if(originAccount.value < amount) throw RuntimeException("Not enough funds!")
+
+        originAccount.value -= amount
+        targetAccount.value += amount
+    }
+
+    private fun transfer(originAccountId: String, targetAccountId: String, amount: Double) {
+        if(originAccountId == targetAccountId) throw RuntimeException("Origin and target accounts cannot be the same!")
+
+        val originAccount = ServerState.internalState.accounts.find { account -> account.id == originAccountId } ?:
+            throw RuntimeException("Origin account not found!")
+
+        val targetAccount = ServerState.internalState.accounts.find { account -> account.id == targetAccountId } ?:
+            throw RuntimeException("Target account not found!")
+
+        if(originAccount.value < (amount + ServerState.internalState.bankTransferTariff))
+            throw RuntimeException("Not enough funds!")
+
+        originAccount.value -= (amount + ServerState.internalState.bankTransferTariff)
+        targetAccount.value += amount
+    }
+
+    private fun withdraw(accountId: String, amount: Double) {
+        val withdrawAccount = ServerState.internalState.accounts.find { account -> account.id == accountId } ?:
+            throw RuntimeException("Account not found!")
+
+        if(withdrawAccount.value < amount) throw RuntimeException("Not enough funds!")
+
+        withdrawAccount.value -= amount
+    }
+
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
