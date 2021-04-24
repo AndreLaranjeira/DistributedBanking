@@ -2,12 +2,9 @@ package banking
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import operations.MapOperations
 
 typealias listAccounts = List<Account>
 val listOfMyClassObject = object : TypeToken<ArrayList<Account>>() {}.type
-
-
 
 object Teste {
     data class state(
