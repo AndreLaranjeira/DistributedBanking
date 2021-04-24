@@ -10,11 +10,9 @@ import bftsmart.tom.ServiceReplica
 import java.lang.UnsupportedOperationException
 import kotlin.jvm.JvmStatic
 
-import operations.MapOperations
-
 class BankingServer(id: Int) : DefaultSingleRecoverable() {
     override fun appExecuteOrdered(bytes: ByteArray, context: MessageContext): ByteArray {
-        val request = BankingClientMessage(bytes)
+        val request = BankingClientMessage.fromByteArray(bytes)
         println("Requisição recebida: $request")
 
         // For test only:

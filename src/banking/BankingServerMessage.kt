@@ -2,7 +2,7 @@
 package banking
 
 // Imports.
-import operations.MapOperations
+import com.google.gson.Gson
 
 // Classes.
 enum class BankingServerMessageResultCode {
@@ -12,12 +12,12 @@ enum class BankingServerMessageResultCode {
 data class BankingServerMessage(val resultCode: BankingServerMessageResultCode) {
 
     fun toByteArray() : ByteArray {
-        return MapOperations.mapToByteArray(
-            mapOf("resultCode" to resultCode)
-        )
+        return Gson().toJson(this).toByteArray()
     }
 
-    constructor(byteArray: ByteArray) : this(
-        BankingServerMessageResultCode.valueOf(MapOperations.byteArrayToMap(byteArray).getValue("resultCode"))
-    )
+    companion object {
+        fun fromByteArray(byteArray: ByteArray): BankingServerMessage {
+            return Gson().fromJson(String(byteArray), BankingServerMessage::class.java)
+        }
+    }
 }
