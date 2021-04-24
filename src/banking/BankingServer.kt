@@ -44,6 +44,8 @@ class BankingServer(id: Int) : DefaultSingleRecoverable() {
         return
     }
 
+    // Bank operations
+
     private fun deposit(accountId: String, amount: Double) {
         val recipientAccount = ServerState.internalState.accounts.find { account -> account.id == accountId } ?:
             throw RuntimeException("Account not found!")
@@ -89,6 +91,14 @@ class BankingServer(id: Int) : DefaultSingleRecoverable() {
         if(withdrawAccount.value < amount) throw RuntimeException("Not enough funds!")
 
         withdrawAccount.value -= amount
+    }
+
+    // Account operations
+
+    private fun createAccount(password: String): String {
+        val id = (ServerState.internalState.lastAccountId++).toString()
+        ServerState.internalState.accounts += Account(id, password, 0.00)
+        return id
     }
 
     companion object {
