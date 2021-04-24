@@ -29,7 +29,7 @@ object BankingClient {
                     231.42
             ).toByteArray()
 
-            val replyMessage = BankingServerMessage(proxy.invokeOrdered(request))
+            val replyMessage = BankingServerMessage.fromByteArray(proxy.invokeOrdered(request))
             if(replyMessage.resultCode == BankingServerMessageResultCode.SUCCESS) {
                 println("Success!")
             } else {
