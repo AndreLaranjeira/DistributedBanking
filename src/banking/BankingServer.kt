@@ -7,16 +7,19 @@ package banking
 import bftsmart.tom.MessageContext
 import bftsmart.tom.server.defaultservices.DefaultSingleRecoverable
 import bftsmart.tom.ServiceReplica
+import com.google.gson.Gson
 import java.lang.UnsupportedOperationException
 import kotlin.jvm.JvmStatic
 
 class BankingServer(id: Int) : DefaultSingleRecoverable() {
     override fun appExecuteOrdered(bytes: ByteArray, context: MessageContext): ByteArray {
-        val request = BankingClientMessage.fromByteArray(bytes)
-        println("Requisição recebida: $request")
+        val authRequest = Gson().fromJson(String(bytes), ClientMessage.AuthMessage::class.java)
+        val bankingRequest = Gson().fromJson(String(bytes), ClientMessage.BankingMessage::class.java)
+        println("Requisição recebida: $authRequest")
+        println("Requisição recebida: $bankingRequest")
 
         // For test only:
-        ServerState.internalState.accounts[0].value = request.operationValue
+        // ServerState.internalState.accounts[0].value = request.operationValue
 
         return BankingServerMessage(BankingServerMessageResultCode.SUCCESS).toByteArray()
     }
