@@ -3,6 +3,7 @@ package banking
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.exceptions.JWTDecodeException
 import com.auth0.jwt.interfaces.DecodedJWT
 
 data class LoginData(
@@ -17,7 +18,7 @@ class Auth {
      *   try {
      *       val loginData = Auth.login("1", "batata1")
      *       println(loginData.token)
-     *   } catch (e: NoSuchElementException) {
+     *   } catch (e: Exception) {
      *       println("Invalid account or password")
      *   }
      *
@@ -25,7 +26,7 @@ class Auth {
      *       val loginData = Auth.login("1", "batata1")
      *       val account = Auth.validate(loginData.token)
      *       println(account.value)
-     *   } catch (e: NoSuchElementException) {
+     *   } catch (e: Exception) {
      *       println("Invalid Token")
      *   }
      */
@@ -33,20 +34,31 @@ class Auth {
     companion object {
         fun login(accountId: String, password: String) : LoginData{
             val accounts = ServerState.internalState.accounts
-            val account = accounts.single { x -> (x.id == accountId && x.password == password) }
+            val account = accounts.singleOrNull { x -> (x.id == accountId && x.password == password) } ?:
+                throw NoSuchElementException("Invalid login credentials! Please try again.")
+
             val token = encode(account.id)
 
-            // On error throw NoSuchElementException
             return LoginData(token, account.id, account.value)
         }
 
-        fun validate(token: String) : Account{
-            val accountId = decode(token)
-            val accounts = ServerState.internalState.accounts
-            println(accountId)
+        fun validate(token: String) : AccountInformation{
+            try {
+                val accountId = decode(token)
+                val accounts = ServerState.internalState.accounts
+                val transferTariff = ServerState.internalState.transferTariff
 
-            // On error throw NoSuchElementException
-            return accounts.single { it.id == accountId }
+                val account = accounts.singleOrNull { it.id == accountId } ?:
+                    throw NoSuchElementException("Account does not exist anymore!")
+
+                return AccountInformation(account.id, account.value, transferTariff)
+            }
+            catch (e: Exception) {
+                when(e) {
+                    is JWTDecodeException -> throw JWTDecodeException("Invalid token!")
+                    else -> throw e
+                }
+            }
         }
 
         private fun encode(accountId: String) : String{
@@ -62,7 +74,7 @@ class Auth {
             val algorithmHS = Algorithm.HMAC256("secret")
             val verifier: JWTVerifier = JWT.require(algorithmHS)
                 .withIssuer("auth0")
-                .build() //Reusable verifier instance
+                .build() // Reusable verifier instance.
 
             val jwt: DecodedJWT = verifier.verify(token)
             return jwt.getClaim("accountId").asString()
