@@ -11,8 +11,7 @@ object ServerState {
             Account("10003", "senha", 3000.00),
             Account("10004", "senha", 4000.10),
         ),
-        val bankName: String = "DBB",
-        val bankTransferTariff: Double = 10.37,
+        val transferTariff: Double = 10.37,
         var serverId: Int = -1,
         var lastAccountId: Int = accounts.last().id.toInt()
     )

@@ -5,3 +5,9 @@ data class Account (
     val password: String,
     var value: Double
 )
+
+data class AccountInformation(
+    val id: String,
+    val value: Double,
+    val transferTariff: Double,
+)

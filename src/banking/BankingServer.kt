@@ -75,10 +75,10 @@ class BankingServer(id: Int) : DefaultSingleRecoverable() {
         val targetAccount = ServerState.internalState.accounts.find { account -> account.id == targetAccountId } ?:
             throw RuntimeException("Target account not found!")
 
-        if(originAccount.value < (amount + ServerState.internalState.bankTransferTariff))
+        if(originAccount.value < (amount + ServerState.internalState.transferTariff))
             throw RuntimeException("Not enough funds!")
 
-        originAccount.value -= (amount + ServerState.internalState.bankTransferTariff)
+        originAccount.value -= (amount + ServerState.internalState.transferTariff)
         targetAccount.value += amount
     }
 
