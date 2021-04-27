@@ -35,7 +35,7 @@ object Client {
                     break
                 }
                 AuthenticationMenuActions.CREATE -> {
-                    println("Create your password: ")
+                    print("Create your password: ")
                     val password = readLine()!!
                     val request = ClientMessage.AuthMessage(
                             AuthOperationsCode.CREATE,
@@ -49,14 +49,14 @@ object Client {
                             println("Account created")
                         }
                         else -> {
-                            print("Error while creating your account")
+                            println("Error while creating your account")
                         }
                     }
                 }
                 AuthenticationMenuActions.ACCESS -> {
-                    println("Enter your account ID: ")
+                    print("Enter your account ID: ")
                     val accountId = readLine()!!
-                    println("Enter your password: ")
+                    print("Enter your password: ")
                     val accountPassword = readLine()!!
 
                     val request = ClientMessage.AuthMessage(
@@ -74,7 +74,7 @@ object Client {
                                         break
                                     }
                                     AuthenticatedMenuActions.WITHDRAW, AuthenticatedMenuActions.DEPOSIT-> {
-                                        println("Type value: (R$)")
+                                        print("Type value (R$): ")
                                         val operationValue = readLine()!!.toDouble()
                                         val withdrawRequest = ClientMessage.BankingMessage(
                                                 operationOption.toBankingOperationsCode(),
@@ -91,9 +91,9 @@ object Client {
                                         }
                                     }
                                     AuthenticatedMenuActions.PIX, AuthenticatedMenuActions.TRANSFER -> {
-                                        println("Type value: (R$)")
+                                        print("Type value (R$): ")
                                         val operationValue = readLine()!!.toDouble()
-                                        println("Type destination account: ")
+                                        print("Type destination account: ")
                                         val targetAccount = readLine()!!
                                         val withdrawRequest = ClientMessage.BankingMessage(
                                                 operationOption.toBankingOperationsCode(),
@@ -128,12 +128,18 @@ object Client {
         var chosenOption: AuthenticatedMenuActions? = null
         while (chosenOption == null) {
 
+            println("")
+            println("********************************")
+            println("Account session is active.")
             println("Choose an option:")
-            println("0) Back")
+            println("0) Logoff")
             println("1) Deposit")
             println("2) Withdraw")
             println("3) Transfer")
             println("4) PIX")
+            println("********************************")
+            print("Option: ")
+
             try {
                 chosenOption = AuthenticatedMenuActions.fromInt(readLine()!!.toInt())
             } catch (e: Exception) {
@@ -152,11 +158,15 @@ object Client {
         var chosenOption: AuthenticationMenuActions? = null
         while (chosenOption == null) {
 
+            println("")
+            println("********************************")
             println("Welcome to Distributed Banking!")
             println("Choose an option:")
             println("0) Exit")
             println("1) Access your account")
             println("2) Create an account")
+            println("********************************")
+            print("Option: ")
 
             try {
                 chosenOption = AuthenticationMenuActions.fromInt(readLine()!!.toInt())
