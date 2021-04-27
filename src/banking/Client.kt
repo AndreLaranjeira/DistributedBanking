@@ -7,7 +7,7 @@ package banking
 import bftsmart.tom.ServiceProxy
 import kotlin.jvm.JvmStatic
 
-object BankingClient {
+object Client {
 
     enum class AuthenticatedMenuActions {
         EXIT, DEPOSIT, WITHDRAW, TRANSFER, PIX;
@@ -43,9 +43,9 @@ object BankingClient {
                             password
                     ).toByteArray()
 
-                    val replyMessage = BankingServerMessage.fromByteArray(proxy.invokeOrdered(request))
+                    val replyMessage = ServerMessage.fromByteArray(proxy.invokeOrdered(request))
                     when (replyMessage.resultCode) {
-                        BankingServerMessageResultCode.SUCCESS -> {
+                        ServerMessageResultCode.SUCCESS -> {
                             println("Account created")
                         }
                         else -> {
@@ -64,10 +64,10 @@ object BankingClient {
                             accountId,
                             accountPassword
                     ).toByteArray()
-                    val replyMessage = BankingServerMessage.fromByteArray(proxy.invokeOrdered(request))
+                    val replyMessage = ServerMessage.fromByteArray(proxy.invokeOrdered(request))
 
                     when (replyMessage.resultCode) {
-                        BankingServerMessageResultCode.SUCCESS -> {
+                        ServerMessageResultCode.SUCCESS -> {
                             while (true) {
                                 when(val operationOption = chooseAuthenticatedMenuOption()) {
                                     AuthenticatedMenuActions.EXIT -> {
@@ -83,8 +83,8 @@ object BankingClient {
                                                 operationValue,
                                                 "JWT"
                                         ).toByteArray()
-                                        val withdrawReply = BankingServerMessage.fromByteArray(proxy.invokeOrdered(withdrawRequest))
-                                        if(withdrawReply.resultCode == BankingServerMessageResultCode.SUCCESS) {
+                                        val withdrawReply = ServerMessage.fromByteArray(proxy.invokeOrdered(withdrawRequest))
+                                        if(withdrawReply.resultCode == ServerMessageResultCode.SUCCESS) {
                                             println("Success!")
                                         } else {
                                             println("An error happened while processing your operation, please try again later.")
@@ -102,8 +102,8 @@ object BankingClient {
                                                 operationValue,
                                                 "JWT"
                                         ).toByteArray()
-                                        val withdrawReply = BankingServerMessage.fromByteArray(proxy.invokeOrdered(withdrawRequest))
-                                        if(withdrawReply.resultCode == BankingServerMessageResultCode.SUCCESS) {
+                                        val withdrawReply = ServerMessage.fromByteArray(proxy.invokeOrdered(withdrawRequest))
+                                        if(withdrawReply.resultCode == ServerMessageResultCode.SUCCESS) {
                                             println("Success!")
                                         } else {
                                             println("An error happened while processing your operation, please try again later.")
@@ -112,7 +112,7 @@ object BankingClient {
                                 }
                             }
                         }
-                        BankingServerMessageResultCode.AUTHENTICATION_ERROR -> {
+                        ServerMessageResultCode.AUTHENTICATION_ERROR -> {
                             println("Wrong password!")
                         }
                     }

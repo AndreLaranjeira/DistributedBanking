@@ -11,7 +11,7 @@ import com.google.gson.Gson
 import java.lang.UnsupportedOperationException
 import kotlin.jvm.JvmStatic
 
-class BankingServer(id: Int) : DefaultSingleRecoverable() {
+class Server(id: Int) : DefaultSingleRecoverable() {
     override fun appExecuteOrdered(bytes: ByteArray, context: MessageContext): ByteArray {
         val authRequest = Gson().fromJson(String(bytes), ClientMessage.AuthMessage::class.java)
         val bankingRequest = Gson().fromJson(String(bytes), ClientMessage.BankingMessage::class.java)
@@ -21,7 +21,7 @@ class BankingServer(id: Int) : DefaultSingleRecoverable() {
         // For test only:
         // ServerState.internalState.accounts[0].value = request.operationValue
 
-        return BankingServerMessage(BankingServerMessageResultCode.SUCCESS).toByteArray()
+        return ServerMessage(ServerMessageResultCode.SUCCESS).toByteArray()
     }
 
     override fun appExecuteUnordered(bytes: ByteArray, context: MessageContext): ByteArray {
@@ -105,7 +105,7 @@ class BankingServer(id: Int) : DefaultSingleRecoverable() {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            BankingServer(args[0].toInt())
+            Server(args[0].toInt())
         }
     }
 
