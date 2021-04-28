@@ -5,20 +5,18 @@ package banking
 
 // Imports.
 import bftsmart.tom.MessageContext
-import bftsmart.tom.server.defaultservices.DefaultSingleRecoverable
 import bftsmart.tom.ServiceReplica
-import java.lang.UnsupportedOperationException
-import kotlin.jvm.JvmStatic
+import bftsmart.tom.server.defaultservices.DefaultSingleRecoverable
 
-class BankingServer(id: Int) : DefaultSingleRecoverable() {
+class Server(id: Int) : DefaultSingleRecoverable() {
     override fun appExecuteOrdered(bytes: ByteArray, context: MessageContext): ByteArray {
-        val request = BankingClientMessage.fromByteArray(bytes)
-        println("Requisição recebida: $request")
+        val clientRequest = ClientMessage.fromByteArray(bytes)
+        println("Requisição recebida $clientRequest")
 
         // For test only:
-        ServerState.internalState.accounts[0].value = request.operationValue
+        // ServerState.internalState.accounts[0].value = request.operationValue
 
-        return BankingServerMessage(BankingServerMessageResultCode.SUCCESS).toByteArray()
+        return ServerMessage(ServerMessageResultCode.SUCCESS).toByteArray()
     }
 
     override fun appExecuteUnordered(bytes: ByteArray, context: MessageContext): ByteArray {
@@ -102,7 +100,7 @@ class BankingServer(id: Int) : DefaultSingleRecoverable() {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            BankingServer(args[0].toInt())
+            Server(args[0].toInt())
         }
     }
 
