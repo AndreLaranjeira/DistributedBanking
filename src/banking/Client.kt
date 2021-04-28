@@ -36,7 +36,13 @@ object Client {
                 }
                 AuthenticationMenuActions.CREATE -> {
                     print("Create your password: ")
-                    val password = readLine()!!
+                    val password = readLine()
+
+                    if(password.isNullOrBlank()) {
+                        println("Cannot accept an empty password! Aborting.")
+                        continue
+                    }
+
                     val request = ClientMessage.AuthMessage(
                             AuthOperationsCode.CREATE,
                             null,
@@ -55,9 +61,20 @@ object Client {
                 }
                 AuthenticationMenuActions.ACCESS -> {
                     print("Enter your account ID: ")
-                    val accountId = readLine()!!
+                    val accountId = readLine()
+
+                    if(accountId.isNullOrBlank()) {
+                        println("Cannot accept an empty account ID! Aborting.")
+                        continue
+                    }
+
                     print("Enter your password: ")
-                    val accountPassword = readLine()!!
+                    val accountPassword = readLine()
+
+                    if(accountPassword.isNullOrBlank()) {
+                        println("Cannot accept an empty password! Aborting.")
+                        continue
+                    }
 
                     val request = ClientMessage.AuthMessage(
                             AuthOperationsCode.ACCESS,
@@ -69,13 +86,27 @@ object Client {
                     when (replyMessage.resultCode) {
                         ServerMessageResultCode.SUCCESS -> {
                             while (true) {
-                                when(val operationOption = chooseAuthenticatedMenuOption()) {
+                                when (val operationOption = chooseAuthenticatedMenuOption()) {
                                     AuthenticatedMenuActions.EXIT -> {
                                         break
                                     }
-                                    AuthenticatedMenuActions.WITHDRAW, AuthenticatedMenuActions.DEPOSIT-> {
-                                        print("Type value (R$): ")
-                                        val operationValue = readLine()!!.toDouble()
+                                    AuthenticatedMenuActions.WITHDRAW, AuthenticatedMenuActions.DEPOSIT -> {
+                                        var operationValue : Double?
+
+                                        try {
+                                            print("Type value (R$): ")
+                                            operationValue = readLine()!!.toDouble()
+                                        }
+                                        catch (e: Exception) {
+                                            when(e) {
+                                                is NumberFormatException, is NullPointerException -> {
+                                                    println("Value input must be a number! Aborting.")
+                                                }
+                                                else -> println("An error happened while processing your operation, please try again later.")
+                                            }
+                                            continue
+                                        }
+
                                         val withdrawRequest = ClientMessage.BankingMessage(
                                                 operationOption.toBankingOperationsCode(),
                                                 accountId,
@@ -91,10 +122,30 @@ object Client {
                                         }
                                     }
                                     AuthenticatedMenuActions.PIX, AuthenticatedMenuActions.TRANSFER -> {
-                                        print("Type value (R$): ")
-                                        val operationValue = readLine()!!.toDouble()
+                                        var operationValue : Double?
+
+                                        try {
+                                            print("Type value (R$): ")
+                                            operationValue = readLine()!!.toDouble()
+                                        }
+                                        catch (e: Exception) {
+                                            when(e) {
+                                                is NumberFormatException, is NullPointerException -> {
+                                                    println("Value input must be a number! Aborting.")
+                                                }
+                                                else -> println("An error happened while processing your operation, please try again later.")
+                                            }
+                                            continue
+                                        }
+
                                         print("Type destination account: ")
-                                        val targetAccount = readLine()!!
+                                        val targetAccount = readLine()
+
+                                        if(targetAccount.isNullOrBlank()) {
+                                            println("Cannot accept an empty destination account! Aborting.")
+                                            continue
+                                        }
+
                                         val withdrawRequest = ClientMessage.BankingMessage(
                                                 operationOption.toBankingOperationsCode(),
                                                 accountId,
@@ -181,4 +232,5 @@ object Client {
         }
         return chosenOption
     }
+
 }
