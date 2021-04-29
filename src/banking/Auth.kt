@@ -9,7 +9,8 @@ import com.auth0.jwt.interfaces.DecodedJWT
 data class LoginData(
     val token: String,
     val id: String,
-    val value: Double
+    val value: Double,
+    val tax: Double,
 )
 
 class Auth {
@@ -39,7 +40,7 @@ class Auth {
 
             val token = encode(account.id)
 
-            return LoginData(token, account.id, account.value)
+            return LoginData(token, account.id, account.value, ServerState.internalState.transferTariff)
         }
 
         fun validate(token: String) : AccountInformation{

@@ -12,7 +12,8 @@ object Client {
     data class ClientSession (
         var jwtToken: String = "",
         var accountId: String = "",
-        var accountBalance: Double = 0.0
+        var accountBalance: Double = 0.0,
+        var accountTax: Double = 0.0
     )
     private val clientSession = ClientSession()
 
@@ -170,6 +171,7 @@ object Client {
             println("********************************")
             println("Account session is active. ID: ${clientSession.accountId}")
             println("Account balance: R$ ${clientSession.accountBalance}")
+            println("Your tax class: R$ ${clientSession.accountTax}")
             println("Choose an option:")
             println("0) Logoff")
             println("1) Deposit")
@@ -243,6 +245,7 @@ object Client {
                         clientSession.accountId = serverMessage.loginData?.id!!
                         clientSession.accountBalance = serverMessage.loginData.value
                         clientSession.jwtToken = serverMessage.loginData.token
+                        clientSession.accountTax = serverMessage.loginData.tax
                     }
                 }
                 return true
