@@ -62,7 +62,7 @@ class Server(id: Int) : DefaultSingleRecoverable() {
                         val account: Account = ServerState.internalState.accounts.first{ it.id == clientRequest.originAccount }
                         resultMessage = ServerMessage.BankingMessage(ServerMessageResultCode.SUCCESS, message, account.value)
                     } catch (e: Exception) {
-                        resultMessage = ServerMessage.BankingMessage(ServerMessageResultCode.ERROR, "Error realizing the operation: " + (e.message ?: "Unknown error."), null)
+                        resultMessage = ServerMessage.BankingMessage(ServerMessageResultCode.ERROR, "Error executing the operation: " + (e.message ?: "Unknown error."), null)
                     }
                 }
                 else -> {
@@ -149,7 +149,7 @@ class Server(id: Int) : DefaultSingleRecoverable() {
     // Account operations
 
     private fun createAccount(password: String): String {
-        val id = (ServerState.internalState.lastAccountId++).toString()
+        val id = (++ServerState.internalState.lastAccountId).toString()
         ServerState.internalState.accounts += Account(id, password, 0.00)
         return id
     }

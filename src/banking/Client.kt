@@ -170,8 +170,8 @@ object Client {
             println("")
             println("********************************")
             println("Account session is active. ID: ${clientSession.accountId}")
-            println("Account balance: R$ ${clientSession.accountBalance}")
-            println("Your tax class: R$ ${clientSession.accountTax}")
+            println("Account balance: R$ ${"%.2f".format(clientSession.accountBalance)}")
+            println("Your tax class: R$ ${"%.2f".format(clientSession.accountTax)}")
             println("Choose an option:")
             println("0) Logoff")
             println("1) Deposit")
@@ -238,6 +238,9 @@ object Client {
                     is ServerMessage.BankingMessage -> {
                         println("Operation successful")
                         println("Your new balance is: R$ ${serverMessage.value}")
+
+                        if(serverMessage.value != null)
+                            clientSession.accountBalance = serverMessage.value
                     }
                     is ServerMessage.LoginMessage -> {
                         println("Welcome to Distributed Banking!")

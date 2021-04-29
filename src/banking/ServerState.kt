@@ -9,7 +9,7 @@ object ServerState {
             Account("10001", "senha", 1000.00),
             Account("10002", "senha", 2000.00),
             Account("10003", "senha", 3000.00),
-            Account("10004", "senha", 4000.10),
+            Account("10004", "senha", 4000.00),
         ),
         val transferTariff: Double = 10.37,
         var serverId: Int = -1,

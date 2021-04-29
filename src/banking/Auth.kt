@@ -13,7 +13,7 @@ data class LoginData(
     val tax: Double,
 )
 
-class Auth {
+object Auth {
     /**
      * Examples:
      *   try {
@@ -32,53 +32,51 @@ class Auth {
      *   }
      */
 
-    companion object {
-        fun login(accountId: String, password: String) : LoginData{
+    fun login(accountId: String, password: String) : LoginData{
+        val accounts = ServerState.internalState.accounts
+        val account = accounts.singleOrNull { x -> (x.id == accountId && x.password == password) } ?:
+            throw NoSuchElementException("Invalid login credentials! Please try again.")
+
+        val token = encode(account.id)
+
+        return LoginData(token, account.id, account.value, ServerState.internalState.transferTariff)
+    }
+
+    fun validate(token: String) : AccountInformation{
+        try {
+            val accountId = decode(token)
             val accounts = ServerState.internalState.accounts
-            val account = accounts.singleOrNull { x -> (x.id == accountId && x.password == password) } ?:
-                throw NoSuchElementException("Invalid login credentials! Please try again.")
+            val transferTariff = ServerState.internalState.transferTariff
 
-            val token = encode(account.id)
+            val account = accounts.singleOrNull { it.id == accountId } ?:
+                throw NoSuchElementException("Account does not exist anymore!")
 
-            return LoginData(token, account.id, account.value, ServerState.internalState.transferTariff)
+            return AccountInformation(account.id, account.value, transferTariff)
         }
-
-        fun validate(token: String) : AccountInformation{
-            try {
-                val accountId = decode(token)
-                val accounts = ServerState.internalState.accounts
-                val transferTariff = ServerState.internalState.transferTariff
-
-                val account = accounts.singleOrNull { it.id == accountId } ?:
-                    throw NoSuchElementException("Account does not exist anymore!")
-
-                return AccountInformation(account.id, account.value, transferTariff)
-            }
-            catch (e: Exception) {
-                when(e) {
-                    is JWTDecodeException -> throw JWTDecodeException("Invalid token!")
-                    else -> throw e
-                }
+        catch (e: Exception) {
+            when(e) {
+                is JWTDecodeException -> throw JWTDecodeException("Invalid token!")
+                else -> throw e
             }
         }
+    }
 
-        private fun encode(accountId: String) : String{
-            val algorithmHS = Algorithm.HMAC256("secret")
-            val token = JWT.create()
-                .withClaim("accountId", accountId)
-                .withIssuer("auth0")
-                .sign(algorithmHS)
-            return token.toString()
-        }
+    private fun encode(accountId: String) : String{
+        val algorithmHS = Algorithm.HMAC256("secret")
+        val token = JWT.create()
+            .withClaim("accountId", accountId)
+            .withIssuer("auth0")
+            .sign(algorithmHS)
+        return token.toString()
+    }
 
-        private fun decode(token: String) : String {
-            val algorithmHS = Algorithm.HMAC256("secret")
-            val verifier: JWTVerifier = JWT.require(algorithmHS)
-                .withIssuer("auth0")
-                .build() // Reusable verifier instance.
+    private fun decode(token: String) : String {
+        val algorithmHS = Algorithm.HMAC256("secret")
+        val verifier: JWTVerifier = JWT.require(algorithmHS)
+            .withIssuer("auth0")
+            .build() // Reusable verifier instance.
 
-            val jwt: DecodedJWT = verifier.verify(token)
-            return jwt.getClaim("accountId").asString()
-        }
+        val jwt: DecodedJWT = verifier.verify(token)
+        return jwt.getClaim("accountId").asString()
     }
 }
