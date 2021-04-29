@@ -9,6 +9,14 @@ import kotlin.jvm.JvmStatic
 
 object Client {
 
+    data class ClientSession (
+        var jwtToken: String = "",
+        var accountId: String = "",
+        var accountBalance: Double = 0.0,
+        var accountTax: Double = 0.0
+    )
+    private val clientSession = ClientSession()
+
     enum class AuthenticatedMenuActions {
         EXIT, DEPOSIT, WITHDRAW, TRANSFER, PIX;
         fun toBankingOperationsCode() = BankingOperationsCode.valueOf(this.name)
@@ -29,6 +37,7 @@ object Client {
     @JvmStatic
     fun main(args: Array<String>) {
         val proxy = ServiceProxy(1001)
+
         while (true) {
             when (chooseAuthenticationMenuOption()) {
                 AuthenticationMenuActions.EXIT -> {
@@ -50,14 +59,7 @@ object Client {
                     ).toByteArray()
 
                     val replyMessage = ServerMessage.fromByteArray(proxy.invokeOrdered(request))
-                    when (replyMessage.resultCode) {
-                        ServerMessageResultCode.SUCCESS -> {
-                            println("Account created")
-                        }
-                        else -> {
-                            println("Error while creating your account")
-                        }
-                    }
+                    handleServerReplies(replyMessage)
                 }
                 AuthenticationMenuActions.ACCESS -> {
                     print("Enter your account ID: ")
@@ -82,89 +84,75 @@ object Client {
                             accountPassword
                     ).toByteArray()
                     val replyMessage = ServerMessage.fromByteArray(proxy.invokeOrdered(request))
+                    val isSuccessCode = handleServerReplies(replyMessage)
 
-                    when (replyMessage.resultCode) {
-                        ServerMessageResultCode.SUCCESS -> {
-                            while (true) {
-                                when (val operationOption = chooseAuthenticatedMenuOption()) {
-                                    AuthenticatedMenuActions.EXIT -> {
-                                        break
-                                    }
-                                    AuthenticatedMenuActions.WITHDRAW, AuthenticatedMenuActions.DEPOSIT -> {
-                                        var operationValue : Double?
+                    if(isSuccessCode) {
+                        while (true) {
+                            when (val operationOption = chooseAuthenticatedMenuOption()) {
+                                AuthenticatedMenuActions.EXIT -> {
+                                    break
+                                }
+                                AuthenticatedMenuActions.WITHDRAW, AuthenticatedMenuActions.DEPOSIT -> {
+                                    var operationValue: Double?
 
-                                        try {
-                                            print("Type value (R$): ")
-                                            operationValue = readLine()!!.toDouble()
-                                        }
-                                        catch (e: Exception) {
-                                            when(e) {
-                                                is NumberFormatException, is NullPointerException -> {
-                                                    println("Value input must be a number! Aborting.")
-                                                }
-                                                else -> println("An error happened while processing your operation, please try again later.")
+                                    try {
+                                        print("Type value (R$): ")
+                                        operationValue = readLine()!!.toDouble()
+                                    } catch (e: Exception) {
+                                        when (e) {
+                                            is NumberFormatException, is NullPointerException -> {
+                                                println("Value input must be a number! Aborting.")
                                             }
-                                            continue
+                                            else -> println("An error happened while processing your operation, please try again later.")
                                         }
-
-                                        val withdrawRequest = ClientMessage.BankingMessage(
-                                                operationOption.toBankingOperationsCode(),
-                                                accountId,
-                                                null,
-                                                operationValue,
-                                                "JWT"
-                                        ).toByteArray()
-                                        val withdrawReply = ServerMessage.fromByteArray(proxy.invokeOrdered(withdrawRequest))
-                                        if(withdrawReply.resultCode == ServerMessageResultCode.SUCCESS) {
-                                            println("Success!")
-                                        } else {
-                                            println("An error happened while processing your operation, please try again later.")
-                                        }
+                                        continue
                                     }
-                                    AuthenticatedMenuActions.PIX, AuthenticatedMenuActions.TRANSFER -> {
-                                        var operationValue : Double?
 
-                                        try {
-                                            print("Type value (R$): ")
-                                            operationValue = readLine()!!.toDouble()
-                                        }
-                                        catch (e: Exception) {
-                                            when(e) {
-                                                is NumberFormatException, is NullPointerException -> {
-                                                    println("Value input must be a number! Aborting.")
-                                                }
-                                                else -> println("An error happened while processing your operation, please try again later.")
+                                    val withdrawRequest = ClientMessage.BankingMessage(
+                                            operationOption.toBankingOperationsCode(),
+                                            clientSession.accountId,
+                                            null,
+                                            operationValue,
+                                            clientSession.jwtToken
+                                    ).toByteArray()
+                                    val withdrawReply = ServerMessage.fromByteArray(proxy.invokeOrdered(withdrawRequest))
+                                    handleServerReplies(withdrawReply)
+                                }
+                                AuthenticatedMenuActions.PIX, AuthenticatedMenuActions.TRANSFER -> {
+                                    var operationValue: Double?
+
+                                    try {
+                                        print("Type value (R$): ")
+                                        operationValue = readLine()!!.toDouble()
+                                    } catch (e: Exception) {
+                                        when (e) {
+                                            is NumberFormatException, is NullPointerException -> {
+                                                println("Value input must be a number! Aborting.")
                                             }
-                                            continue
+                                            else -> println("An error happened while processing your operation, please try again later.")
                                         }
-
-                                        print("Type destination account: ")
-                                        val targetAccount = readLine()
-
-                                        if(targetAccount.isNullOrBlank()) {
-                                            println("Cannot accept an empty destination account! Aborting.")
-                                            continue
-                                        }
-
-                                        val withdrawRequest = ClientMessage.BankingMessage(
-                                                operationOption.toBankingOperationsCode(),
-                                                accountId,
-                                                targetAccount,
-                                                operationValue,
-                                                "JWT"
-                                        ).toByteArray()
-                                        val withdrawReply = ServerMessage.fromByteArray(proxy.invokeOrdered(withdrawRequest))
-                                        if(withdrawReply.resultCode == ServerMessageResultCode.SUCCESS) {
-                                            println("Success!")
-                                        } else {
-                                            println("An error happened while processing your operation, please try again later.")
-                                        }
+                                        continue
                                     }
+
+                                    print("Type destination account: ")
+                                    val targetAccount = readLine()
+
+                                    if (targetAccount.isNullOrBlank()) {
+                                        println("Cannot accept an empty destination account! Aborting.")
+                                        continue
+                                    }
+
+                                    val withdrawRequest = ClientMessage.BankingMessage(
+                                            operationOption.toBankingOperationsCode(),
+                                            clientSession.accountId,
+                                            targetAccount,
+                                            operationValue,
+                                            clientSession.jwtToken
+                                    ).toByteArray()
+                                    val withdrawReply = ServerMessage.fromByteArray(proxy.invokeOrdered(withdrawRequest))
+                                    handleServerReplies(withdrawReply)
                                 }
                             }
-                        }
-                        ServerMessageResultCode.ERROR -> {
-                            println("Wrong password!")
                         }
                     }
                 }
@@ -181,7 +169,9 @@ object Client {
 
             println("")
             println("********************************")
-            println("Account session is active.")
+            println("Account session is active. ID: ${clientSession.accountId}")
+            println("Account balance: R$ ${clientSession.accountBalance}")
+            println("Your tax class: R$ ${clientSession.accountTax}")
             println("Choose an option:")
             println("0) Logoff")
             println("1) Deposit")
@@ -231,6 +221,40 @@ object Client {
             }
         }
         return chosenOption
+    }
+
+    private fun handleServerReplies(serverMessage: ServerMessage) : Boolean {
+        try {
+            if(serverMessage.resultCode == ServerMessageResultCode.ERROR) {
+                println(serverMessage.errorMessage)
+                return false
+            }
+            else {
+                when(serverMessage) {
+                    is ServerMessage.AccountCreationMessage -> {
+                        println("Account created successfully")
+                        println("Your account ID is: ${serverMessage.accountId}")
+                    }
+                    is ServerMessage.BankingMessage -> {
+                        println("Operation successful")
+                        println("Your new balance is: R$ ${serverMessage.value}")
+                    }
+                    is ServerMessage.LoginMessage -> {
+                        println("Welcome to Distributed Banking!")
+                        println("Account ID: ${serverMessage.loginData?.id}")
+                        clientSession.accountId = serverMessage.loginData?.id!!
+                        clientSession.accountBalance = serverMessage.loginData.value
+                        clientSession.jwtToken = serverMessage.loginData.token
+                        clientSession.accountTax = serverMessage.loginData.tax
+                    }
+                }
+                return true
+            }
+        } catch (e: Exception) {
+            println("An error happened while decoding server message $e")
+            return false
+        }
+
     }
 
 }
