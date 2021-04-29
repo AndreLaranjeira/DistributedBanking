@@ -163,7 +163,7 @@ object Client {
                                 }
                             }
                         }
-                        ServerMessageResultCode.AUTHENTICATION_ERROR -> {
+                        ServerMessageResultCode.ERROR -> {
                             println("Wrong password!")
                         }
                     }
