@@ -1,8 +1,8 @@
-# Error Detection
+# Distributed Banking
 
 ## Descrição
 
-Uma aplicação distribuída feita com a biblioteca [BFT-SMART](https://github.com/bft-smart/library) para implementar e estudar a detecção de falhas em sistemas distribuídos. Trabalho final da disciplina de Tópicos avançados em computadores - Tolerância a falhas em sistemas distribuídos 2020/2 da Universidade de Brasília.
+Uma aplicação bancária para sistemas distribuídos feita com a biblioteca [BFT-SMART](https://github.com/bft-smart/library). Trabalho final da disciplina de Tópicos avançados em computadores - Tolerância a falhas em sistemas distribuídos 2020/2 da Universidade de Brasília.
 
 ## Integrantes
 
@@ -52,3 +52,40 @@ Além disso, listamos abaixo todos os arquivos e pastas de arquivos obtidos da b
 
 * config/hosts.config
 * config/system.config
+
+#### Arquivos da biblioteca consultados para a configuração do projeto
+
+Os arquivos abaixo **não foram copiados para o projeto**, sendo encontrados apenas na biblioteca BFT-Smart. Entretanto, como seu conteúdo foi utilizado para configurar este projeto, decidimos listá-los abaixo por precaução.
+
+* runscripts/smartrun.sh
+
+## Outras libs externas:
+- gson: para converter data classes para json e vice versa
+    - Licença Apache 2: https://github.com/google/gson/blob/master/LICENSE
+    - https://www.javadoc.io/doc/com.google.code.gson/gson/2.6.2/index.html
+    - https://github.com/google/gson
+- java-jwt: Para codificar e decodificar jwt
+    - Licença MIT: https://github.com/auth0/java-jwt/blob/master/LICENSE
+    - https://javadoc.io/doc/com.auth0/java-jwt/latest/index.html
+    - https://github.com/auth0/java-jwt
+
+## Configuração do projeto
+
+### IntelliJ
+
+Para rodar o projeto no IntelliJ, será necessário realizar alguns passos de configuração do projeto.
+
+1. Inclua todos os arquivos `.jar` da pasta `lib` nas bibliotecas utilizadas pelo projeto.
+
+   Isso pode ser feito clicando com o botão direito no nome do projeto, escolhendo a opção "Open module settings (f4)" e navengando ao menu "Project settings -> Libraries".
+   Lembre-se de colocar os arquivos `.jar` como uma biblioteca do tipo "Java".
+
+2. Crie as configurações de construção e execução do projeto.
+
+   Para isso, clique canto direito superior da tela, clique em "Add Configuration". As configurações devem ser do tipo "Application". Crie 3 configurações para a classe `BankingServer` e 1 para a classe `BankingClient`.
+   Os servidores devem receber um argumento de id, o qual deve ser os números 0, 1 e 2.
+
+3. Modifique as configurações de construção e execução do projeto para incluir as opções necessárias da máquina virtual.
+
+   Talvez seja necessário habilitar o uso destas opções na tela de edição de configuração de construção e execução pelo link "Modify options" com a marcação da opção "Java -> Add VM options".
+   O valor das opções de máquina virtual deve ser exatamente `-Djava.security.properties="./config/java.security"; -Dlogback.configurationFile="./config/logback.xml"`.
