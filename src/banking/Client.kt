@@ -168,7 +168,8 @@ object Client {
 
             println("")
             println("********************************")
-            println("Account session is active.")
+            println("Account session is active. ID: ${clientSession.accountId}")
+            println("Account balance: R$ ${clientSession.accountBalance}")
             println("Choose an option:")
             println("0) Logoff")
             println("1) Deposit")
