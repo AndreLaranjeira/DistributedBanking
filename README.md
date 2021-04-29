@@ -59,12 +59,12 @@ Os arquivos abaixo **não foram copiados para o projeto**, sendo encontrados ape
 
 * runscripts/smartrun.sh
 
-## Outras libs externas:
-- gson: para converter data classes para json e vice versa
+## Outras bibliotecas externas
+- `gson`: para converter data classes para json e vice versa
     - Licença Apache 2: https://github.com/google/gson/blob/master/LICENSE
     - https://www.javadoc.io/doc/com.google.code.gson/gson/2.6.2/index.html
     - https://github.com/google/gson
-- java-jwt: Para codificar e decodificar jwt
+- `java-jwt`: Para codificar e decodificar jwt
     - Licença MIT: https://github.com/auth0/java-jwt/blob/master/LICENSE
     - https://javadoc.io/doc/com.auth0/java-jwt/latest/index.html
     - https://github.com/auth0/java-jwt
