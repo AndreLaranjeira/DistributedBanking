@@ -36,7 +36,7 @@ object Client {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val proxy = ServiceProxy(1001)
+        val proxy = ServiceProxy(args[0].toInt())
 
         while (true) {
             when (chooseAuthenticationMenuOption()) {
