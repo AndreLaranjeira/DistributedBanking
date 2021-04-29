@@ -9,6 +9,13 @@ import kotlin.jvm.JvmStatic
 
 object Client {
 
+    data class ClientSession (
+        var jwtToken: String = "",
+        var accountId: String = "",
+        var accountBalance: Double = 0.0
+    )
+    private val clientSession = ClientSession()
+
     enum class AuthenticatedMenuActions {
         EXIT, DEPOSIT, WITHDRAW, TRANSFER, PIX;
         fun toBankingOperationsCode() = BankingOperationsCode.valueOf(this.name)
@@ -29,7 +36,6 @@ object Client {
     @JvmStatic
     fun main(args: Array<String>) {
         val proxy = ServiceProxy(1001)
-        var clientSession = LoginData("", "", 0.0)
 
         while (true) {
             when (chooseAuthenticationMenuOption()) {
@@ -52,7 +58,7 @@ object Client {
                     ).toByteArray()
 
                     val replyMessage = ServerMessage.fromByteArray(proxy.invokeOrdered(request))
-                    handleServerReplies(replyMessage, clientSession)
+                    handleServerReplies(replyMessage)
                 }
                 AuthenticationMenuActions.ACCESS -> {
                     print("Enter your account ID: ")
@@ -77,7 +83,7 @@ object Client {
                             accountPassword
                     ).toByteArray()
                     val replyMessage = ServerMessage.fromByteArray(proxy.invokeOrdered(request))
-                    val isSuccessCode = handleServerReplies(replyMessage, clientSession)
+                    val isSuccessCode = handleServerReplies(replyMessage)
 
                     if(isSuccessCode) {
                         while (true) {
@@ -103,13 +109,13 @@ object Client {
 
                                     val withdrawRequest = ClientMessage.BankingMessage(
                                             operationOption.toBankingOperationsCode(),
-                                            clientSession.id,
+                                            clientSession.accountId,
                                             null,
                                             operationValue,
-                                            clientSession.token
+                                            clientSession.jwtToken
                                     ).toByteArray()
                                     val withdrawReply = ServerMessage.fromByteArray(proxy.invokeOrdered(withdrawRequest))
-                                    handleServerReplies(withdrawReply, clientSession)
+                                    handleServerReplies(withdrawReply)
                                 }
                                 AuthenticatedMenuActions.PIX, AuthenticatedMenuActions.TRANSFER -> {
                                     var operationValue: Double?
@@ -137,13 +143,13 @@ object Client {
 
                                     val withdrawRequest = ClientMessage.BankingMessage(
                                             operationOption.toBankingOperationsCode(),
-                                            clientSession.id,
+                                            clientSession.accountId,
                                             targetAccount,
                                             operationValue,
-                                            clientSession.token
+                                            clientSession.jwtToken
                                     ).toByteArray()
                                     val withdrawReply = ServerMessage.fromByteArray(proxy.invokeOrdered(withdrawRequest))
-                                    handleServerReplies(withdrawReply, clientSession)
+                                    handleServerReplies(withdrawReply)
                                 }
                             }
                         }
@@ -214,7 +220,7 @@ object Client {
         return chosenOption
     }
 
-    private fun handleServerReplies(serverMessage: ServerMessage, session: LoginData) : Boolean {
+    private fun handleServerReplies(serverMessage: ServerMessage) : Boolean {
         try {
             if(serverMessage.resultCode == ServerMessageResultCode.ERROR) {
                 println(serverMessage.errorMessage)
@@ -223,13 +229,19 @@ object Client {
             else {
                 when(serverMessage) {
                     is ServerMessage.AccountCreationMessage -> {
-                        println("Account Creation")
+                        println("Account created successfully")
+                        println("Your account ID is: ${serverMessage.accountId}")
                     }
                     is ServerMessage.BankingMessage -> {
-                        println("Banking Message")
+                        println("Operation successful")
+                        println("Your new balance is: R$ ${serverMessage.value}")
                     }
                     is ServerMessage.LoginMessage -> {
-                        println("Login Message")
+                        println("Welcome to Distributed Banking!")
+                        println("Account ID: ${serverMessage.loginData?.id}")
+                        clientSession.accountId = serverMessage.loginData?.id!!
+                        clientSession.accountBalance = serverMessage.loginData.value
+                        clientSession.jwtToken = serverMessage.loginData.token
                     }
                 }
                 return true
